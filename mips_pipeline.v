@@ -1,6 +1,7 @@
 // Rising-edge synchronous 32-bit Program Counter. Async reset will set program counter to 0 asynchronously. 
 
 // Dff implementation for registers
+
 module d_ff (
     input clk, 
     input reset, 
@@ -17,6 +18,7 @@ module d_ff (
 endmodule
 
 // Creating a 32-bit Program Counter register that holds exe instruction's address
+
 module program_counter #(parameter N = 32) (
     input clk, 
     input reset, 
@@ -34,23 +36,6 @@ module program_counter #(parameter N = 32) (
     endgenerate
 endmodule 
 
-/*
-module program_counter #(parameter N = 32) (
-    input clk, 
-    input reset, 
-    input PCWrite,
-    input [N-1:0] pc_in, 
-    output reg [N-1:0] pc_out);
-
-    always @ (posedge clk or reset)
-    begin
-        if(reset == 1)
-            pc_out <= 0;
-	else if(PCWrite)
-            pc_out <= pc_in;
-	end
-endmodule
-*/
 // Instruction memory - consisting of 32 entries - instructions commented
 // NOTE - valid range of read addr/4 is from 0 to 31
 
@@ -345,7 +330,6 @@ module ID_EX_reg (
     output reg [5:0] IF_ID_funct_out,
     output reg [5:0] IF_ID_opcode_out);
 
-
     always @(posedge clk or posedge reset)
     begin
 
@@ -637,10 +621,7 @@ module determine_jump_or_branch (
                 addr_out <= 32'b0; 
             end
 	end
-	
 endmodule
-
-
 
 // MEM/WB atate register
 
@@ -908,14 +889,12 @@ module pipelined_proc (
     wire [31:0] EX_MEM_jump_addr, EX_MEM_branch_addr;
     wire EX_MEM_ALU_zero;
     wire [31:0] EX_MEM_reg_read_data2;
-
     EX_MEM_reg u18 (.clk(clk), .reset(reset), .EX_flush(EX_flush), .RegWrite_in(ID_EX_RegWrite), .MemtoReg_in(ID_EX_MemtoReg), .Branch_in(ID_EX_Branch), 
     .MemRead_in(ID_EX_MemRead), .MemWrite_in(ID_EX_MemWrite), .Jump_in(ID_EX_Jump), .jump_addr_in(ID_EX_jump_addr), .branch_addr_in(branch_addr),
     .ALU_zero_in(ALU_zero), .ALU_result_in(ALU_result), .reg_read_data2_in(muxB_out), .ID_EX_register_rd_in(EX_register_rd), .RegWrite_out(EX_MEM_RegWrite), 
     .MemtoReg_out(EX_MEM_MemtoReg), .Branch_out(EX_MEM_Branch), .MemRead_out(EX_MEM_MemRead), .MemWrite_out(EX_MEM_MemWrite), .Jump_out(EX_MEM_Jump),  
     .jump_addr_out(EX_MEM_jump_addr), .branch_addr_out(EX_MEM_branch_addr), .ALU_zero_out(EX_MEM_ALU_zero), .ALU_result_out(EX_MEM_ALU_result), 
     .reg_read_data2_out(EX_MEM_reg_read_data2), .EX_MEM_register_rd_out(EX_MEM_register_rd));
-
 
     // Read/write data memory
     wire [31:0] dm_read_data;
@@ -924,7 +903,7 @@ module pipelined_proc (
 
     // Determine branch or jump instruction - if branch/jump set PCSrc and determine PC val 
     // wire [31:0] branch_jump_addr;
-    determine_jump_or_branch u20 (.Jump(EX_MEM_Jump), .Branch_taken(Branch_taken), .branch_addr(EX_MEM_branch_addr), .jump_addr(EX_MEM_jump_addr), .PCSrc(PCSrc), .addr_out(branch_jump_addr));
+    determine_jump_or_branch u20 (.Jump(EX_MEM_Jump), .Branch_taken(Branch_taken), .branch_addr(EX_MEM_branch_addr), .jump_addr(EX_MEM_jump_addr), .PCSrc(PCSrc), .addr_out(branch_jump_addr));
 
     // MEM/WB state registers
     wire MEM_WB_RegWrite, MEM_WB_MemtoReg;
@@ -932,8 +911,6 @@ module pipelined_proc (
     MEM_WB_reg u21 (.clk(clk), .reset(reset), .RegWrite_in(EX_MEM_RegWrite), .MemtoReg_in(EX_MEM_MemtoReg), .dm_read_data_in(dm_read_data), .dm_read_addr_in(EX_MEM_ALU_result), 
     .EX_MEM_register_rd_in(EX_MEM_register_rd), .RegWrite_out(MEM_WB_RegWrite), .MemtoReg_out(MEM_WB_MemtoReg),  .dm_read_data_out(MEM_WB_dm_read_data), 
     .dm_read_addr_out(MEM_WB_dm_read_addr), .MEM_WB_register_rd_out(MEM_WB_register_rd));
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
     mux_N_bit #(32) u22 (.in0(MEM_WB_dm_read_addr), .in1(MEM_WB_dm_read_data), .select(MEM_WB_MemtoReg), .mux_out(reg_write_data));
 
     // Generate forwarding control signals 
@@ -944,7 +921,6 @@ module pipelined_proc (
     // Detect lw instruction hazard and generate lw stall control accordingly
     lw_stall_unit u24 (.ID_EX_MemRead(ID_EX_MemRead), .ID_EX_register_rt(ID_EX_register_rt), .IF_ID_register_rs(IF_ID_instruction_out[25:21]), .IF_ID_register_rt(IF_ID_instruction_out[20:16]),
     .PCWrite(PCWrite), .IF_ID_write(IF_ID_write), .ID_flush_lw_stall(ID_flush_lw_stall));
-
     branch_and_jump_hazard_unit u25 (.MEM_PCSrc(PCSrc), .IF_flush(IF_flush), .ID_flush_branch(ID_flush_branch), .EX_flush(EX_flush));
 
 endmodule
@@ -961,8 +937,7 @@ module pipelined_processor_tb;
 
     pipelined_proc u0 (.clk(clk), .reset(reset), .read_data1(read_data1));
 
-
-/*
+/*  // Uncomment lines from this block to check outputs at any stage
     // Initialize the 32-bit Program Counter Register
     wire [31:0] pc_out;
     program_counter #(.N(32)) u0 (.clk(clk), .reset(reset), .PCWrite(PCWrite), .pc_in(pc_in), .pc_out(pc_out)); // PCWrite
@@ -1085,7 +1060,8 @@ module pipelined_processor_tb;
 
     // Determine branch or jump instruction - if branch/jump set PCSrc and determine PC val 
     // wire [31:0] branch_jump_addr;
-    determine_jump_or_branch u20 (.Jump(EX_MEM_Jump), .Branch_taken(Branch_taken), .branch_addr(EX_MEM_branch_addr), .jump_addr(EX_MEM_jump_addr), .PCSrc(PCSrc), .addr_out(branch_jump_addr));
+    determine_jump_or_branch u20 (.Jump(EX_MEM_Jump), .Branch_taken(Branch_taken), .branch_addr(EX_MEM_branch_addr), .jump_addr(EX_MEM_jump_addr), .PCSrc(PCSrc), .addr_out(branch_jump_addr));
+
 
     // MEM/WB state registers
     wire MEM_WB_RegWrite, MEM_WB_MemtoReg;
@@ -1108,9 +1084,6 @@ module pipelined_processor_tb;
 
     branch_and_jump_hazard_unit u25 (.MEM_PCSrc(PCSrc), .IF_flush(IF_flush), .ID_flush_branch(ID_flush_branch), .EX_flush(EX_flush));
 */
-
-
-
     always
         #5 clk = ~clk;
     initial
@@ -1122,15 +1095,4 @@ module pipelined_processor_tb;
  
         #300 $finish;
     end
-
 endmodule
-
-
-
-
-
-
-
-
-
-
