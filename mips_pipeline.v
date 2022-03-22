@@ -937,8 +937,11 @@ module pipelined_processor_tb;
 
     pipelined_proc u0 (.clk(clk), .reset(reset), .read_data1(read_data1));
 
-/*  // Uncomment lines from this block to check outputs at any stage
+    /////////////////////////////////////////////////////////////////
+    // Uncomment lines from this block to check outputs at any stage
     // Initialize the 32-bit Program Counter Register
+    /////////////////////////////////////////////////////////////////
+/*
     wire [31:0] pc_out;
     program_counter #(.N(32)) u0 (.clk(clk), .reset(reset), .PCWrite(PCWrite), .pc_in(pc_in), .pc_out(pc_out)); // PCWrite
 
@@ -1070,7 +1073,6 @@ module pipelined_processor_tb;
     .EX_MEM_register_rd_in(EX_MEM_register_rd), .RegWrite_out(MEM_WB_RegWrite), .MemtoReg_out(MEM_WB_MemtoReg),  .dm_read_data_out(MEM_WB_dm_read_data), 
     .dm_read_addr_out(MEM_WB_dm_read_addr), .MEM_WB_register_rd_out(MEM_WB_register_rd));
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
     mux_N_bit #(32) u22 (.in0(MEM_WB_dm_read_addr), .in1(MEM_WB_dm_read_data), .select(MEM_WB_MemtoReg), .mux_out(reg_write_data));
 
     // Generate forwarding control signals 
